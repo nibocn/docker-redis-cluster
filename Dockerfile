@@ -9,8 +9,15 @@ ENV DEBIAN_FRONTEND noninteractive
 # Install system dependencies
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -yqq \
-      net-tools supervisor ruby rubygems locales gettext-base wget && \
+      net-tools supervisor curl locales gettext-base && \
     apt-get clean -yqq
+
+# Install rvm、Ruby、RubyGems
+RUN apt-get install -yqq gnupg gnupg2 \
+    && gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 \
+    && curl -L get.rvm.io | bash -s stable \
+    && source /usr/local/rvm/scripts/rvm \
+    && rvm install 2.4.1
 
 # # Ensure UTF-8 lang and locale
 RUN locale-gen en_US.UTF-8
