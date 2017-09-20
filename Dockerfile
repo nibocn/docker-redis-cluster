@@ -9,24 +9,22 @@ ENV DEBIAN_FRONTEND noninteractive
 # Install system dependencies
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -yqq \
-      net-tools supervisor curl locales gettext-base && \
+      net-tools supervisor ca-certificates gnupg gnupg2 curl locales gettext-base && \
     apt-get clean -yqq
 
 # Install rvm、Ruby、RubyGems
-RUN apt-get install -yqq gnupg gnupg2 \
-    && gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 \
-    && curl -L get.rvm.io | bash -s stable \
-    && source /usr/local/rvm/scripts/rvm \
-    && rvm install 2.4.1
+RUN curl -k -sSL https://rvm.io/mpapis.asc | gpg --import - \
+    && curl -k -sSL get.rvm.io | bash -s stable \
+    && /bin/bash -l -c ". /etc/profile.d/rvm.sh && rvm install 2.4.1 && gem install redis"
 
-# # Ensure UTF-8 lang and locale
+# Ensure UTF-8 lang and locale
 RUN locale-gen en_US.UTF-8
 ENV LANG       en_US.UTF-8
 ENV LC_ALL     en_US.UTF-8
 
-RUN gem install redis
 
-RUN apt-get install -y gcc make g++ build-essential libc6-dev tcl git supervisor ruby
+RUN apt-get install -y gcc make g++ build-essential libc6-dev tcl wget \
+    && apt-get clean -yqq
 
 ARG redis_version=3.2.9
 
